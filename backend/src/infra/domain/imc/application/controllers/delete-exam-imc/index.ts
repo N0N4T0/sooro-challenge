@@ -1,3 +1,4 @@
+import { Request, Response } from 'express'
 import { ExamImcRepository } from "@/infra/database/repositories/exam-imc-repository"
 
 export class DeleteExamImcController {
@@ -5,7 +6,7 @@ export class DeleteExamImcController {
     private readonly examImcRepository: ExamImcRepository,
   ) { }
 
-  async handle(req: any, res: any) {
+  async handle(req: Request<{ id: string }>, res: Response) {
     try {
       const { id } = req.params
 

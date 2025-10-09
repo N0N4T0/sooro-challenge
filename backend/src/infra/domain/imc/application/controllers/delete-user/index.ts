@@ -1,11 +1,12 @@
 import { UserRepository } from "@/infra/database/repositories/user-repository"
+import { Request, Response } from 'express'
 
 export class DeleteUserController {
   constructor(
     private readonly userRepository: UserRepository,
   ) { }
 
-  async handle(req: any, res: any) {
+  async handle(req: Request<{ id: string }>, res: Response) {
     try {
       const { id } = req.params
 
@@ -14,7 +15,7 @@ export class DeleteUserController {
         return res.status(404).json({ error: `Usuário não encontrado` })
       }
 
-      const hasExams = !!userExists.exams
+      const hasExams = userExists.exams && userExists.exams.length > 0
 
       if (hasExams) {
         return res.status(400).json({ error: `Usuário possui exames` })

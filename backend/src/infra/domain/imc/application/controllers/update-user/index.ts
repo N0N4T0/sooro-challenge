@@ -1,5 +1,25 @@
 import { BcryptHasher } from "@/infra/cryptography/bcrypt-hasher"
 import { UserRepository } from "@/infra/database/repositories/user-repository"
+import { Request, Response } from 'express'
+import { z, ZodError } from 'zod'
+import {
+  ErrorResponse,
+  SuccessResponse,
+  createValidationErrorResponse
+} from '@/core/helpers'
+
+const updateUserBodySchema = z.object({
+  name: z.string(),
+  userName: z.string(),
+  password: z.string(),
+  perfil: z.enum(['admin', 'aluno', 'professor']),
+})
+
+type UpdateUserBodySchema = z.infer<typeof updateUserBodySchema>
+
+type UpdateUserControllerRequest = Request<{ id: string }, {}, UpdateUserBodySchema>
+
+type UpdateUserControllerResponse = Response<ErrorResponse | SuccessResponse | { message: string }>
 
 export class UpdateUserController {
   constructor(
@@ -7,24 +27,20 @@ export class UpdateUserController {
     private readonly userRepository: UserRepository,
   ) { }
 
-  async handle(req: any, res: any) {
+  async handle(req: UpdateUserControllerRequest, res: UpdateUserControllerResponse) {
     try {
       const { id } = req.params
       const { name, userName, password, perfil } = req.body
 
-      if (!id || !name || !userName || !password || !perfil) {
-        return res.status(400).json({ error: "Campos obrigatórios faltando" })
+      const validationResult = updateUserBodySchema.safeParse(req.body)
+
+      if (!validationResult.success) {
+        return res.status(400).json(createValidationErrorResponse(validationResult.error))
       }
 
       const userExists = await this.userRepository.getByIdWithExams(id)
       if (!userExists) {
         return res.status(404).json({ error: `Usuário ${id} não encontrado` })
-      }
-
-      if (!['admin', 'aluno', 'professor'].includes(perfil)) {
-        return res.status(400).json({
-          error: 'Perfil inválido.'
-        })
       }
 
       const passwordHash = await this.hashGenerator.hash(password)
@@ -35,9 +51,13 @@ export class UpdateUserController {
       })
     } catch (error: any) {
       console.error('Erro ao atualizar usuário:', error)
+
+      if (error instanceof ZodError) {
+        return res.status(400).json(createValidationErrorResponse(error))
+      }
+
       return res.status(500).json({
-        error: 'Erro interno do servidor',
-        details: error.message
+        error: 'Erro interno do servidor'
       })
     }
   }

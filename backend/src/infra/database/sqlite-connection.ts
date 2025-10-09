@@ -54,6 +54,17 @@ class SqliteConnection {
       )
     `)
 
+    this.db.exec(`
+      CREATE TABLE IF NOT EXISTS usuario_token (
+        id TEXT PRIMARY KEY,
+        refresh_token TEXT NOT NULL,
+        id_usuario TEXT NOT NULL,
+        expiracao_token TEXT NOT NULL,
+        dt_inclusao TEXT NOT NULL DEFAULT (datetime('now')),
+        FOREIGN KEY (id_usuario) REFERENCES usuario(id) ON DELETE RESTRICT ON UPDATE RESTRICT
+      )
+    `)
+
     console.log('✅ Database tables initialized')
   }
 

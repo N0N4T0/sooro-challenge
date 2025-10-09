@@ -39,6 +39,21 @@ class SqliteConnection {
       )
     `)
 
+    this.db.exec(`
+      CREATE TABLE IF NOT EXISTS avaliacao_imc (
+        id TEXT PRIMARY KEY,
+        altura REAL NOT NULL,
+        peso REAL NOT NULL,
+        imc REAL,
+        classificacao TEXT NOT NULL,
+        id_usuario_avaliacao TEXT NOT NULL,
+        id_usuario_aluno TEXT NOT NULL,
+        dt_inclusao TEXT NOT NULL DEFAULT (datetime('now')),
+        FOREIGN KEY (id_usuario_avaliacao) REFERENCES usuario(id) ON DELETE RESTRICT ON UPDATE RESTRICT,
+        FOREIGN KEY (id_usuario_aluno) REFERENCES usuario(id) ON DELETE RESTRICT ON UPDATE RESTRICT
+      )
+    `)
+
     console.log('✅ Database tables initialized')
   }
 

@@ -7,7 +7,8 @@ export class UserRepository {
 
   getById(id: string): Promise<User | null> {
     const stmt = this.db.prepare(`SELECT id, nome, usuario, perfil, situacao, dt_inclusao FROM usuario WHERE id = ?`)
-    return stmt.get(id)
+    const user = stmt.get(id) as User
+    return Promise.resolve(user)
   }
 
   getByIdWithExams(id: string): Promise<UserWithExamImcResponse | null> {
@@ -22,7 +23,7 @@ export class UserRepository {
       ORDER BY ai.dt_inclusao DESC
     `)
 
-    const rows = stmt.all(id)
+    const rows = stmt.all(id) as any[]
 
     const user: UserWithExamImcResponse = {
       id: rows[0].id,
@@ -54,7 +55,8 @@ export class UserRepository {
 
   getByNameOrUserName(name: string, userName: string): Promise<User | null> {
     const stmt = this.db.prepare(`SELECT id, nome, usuario, perfil, situacao, dt_inclusao FROM usuario WHERE nome = ? OR usuario = ?`)
-    return stmt.get(name, userName)
+    const user = stmt.get(name, userName) as User
+    return Promise.resolve(user)
   }
 
   create(user: User): Promise<void> {

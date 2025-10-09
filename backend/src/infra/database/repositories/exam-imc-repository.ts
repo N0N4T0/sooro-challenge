@@ -6,10 +6,11 @@ export class ExamImcRepository {
 
   getExamImcById(id: string): Promise<any | null> {
     const stmt = this.db.prepare(`SELECT id, altura, peso, imc, classificacao, id_usuario_avaliacao, id_usuario_aluno, dt_inclusao FROM avaliacao_imc WHERE id = ?`)
-    return stmt.get(id)
+    stmt.get(id)
+    return Promise.resolve()
   }
 
-  getExamImcByNameOrUsername(nameOrUsername: string): Promise<any[]> {
+  getExamImcByNameOrUsername(nameOrUsername: string): Promise<ExamIMC[]> {
     const stmt = this.db.prepare(`
       SELECT 
         ai.id, 
@@ -27,7 +28,8 @@ export class ExamImcRepository {
       WHERE u.nome LIKE ? OR u.usuario LIKE ?
     `)
     const searchPattern = `%${nameOrUsername}%`
-    return stmt.all(searchPattern, searchPattern)
+    const exams = stmt.all(searchPattern, searchPattern) as ExamIMC[]
+    return Promise.resolve(exams)
   }
 
   create(examImc: ExamIMC): Promise<void> {

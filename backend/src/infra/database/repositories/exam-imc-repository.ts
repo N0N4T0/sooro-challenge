@@ -5,9 +5,19 @@ export class ExamImcRepository {
   private db = sqliteConnection.getDb()
 
   getExamImcById(id: string): Promise<any | null> {
-    const stmt = this.db.prepare(`SELECT id, altura, peso, imc, classificacao, id_usuario_avaliacao, id_usuario_aluno, dt_inclusao FROM avaliacao_imc WHERE id = ?`)
-    stmt.get(id)
-    return Promise.resolve()
+    const stmt = this.db.prepare(`
+      SELECT 
+        id, 
+        altura, 
+        peso, 
+        imc, 
+        classificacao, 
+        id_usuario_avaliacao, 
+        id_usuario_aluno, 
+        dt_inclusao
+      FROM avaliacao_imc WHERE id = ?
+    `)
+    return Promise.resolve(stmt.get(id))
   }
 
   getExamImcByNameOrUsername(nameOrUsername: string): Promise<ExamIMC[]> {
@@ -25,7 +35,7 @@ export class ExamImcRepository {
         u.usuario
       FROM avaliacao_imc ai
       INNER JOIN usuario u ON ai.id_usuario_aluno = u.id
-      WHERE u.nome LIKE ? OR u.usuario LIKE ?
+      WHERE LOWER(u.nome) LIKE LOWER(?) OR LOWER(u.usuario) LIKE LOWER(?)
     `)
     const searchPattern = `%${nameOrUsername}%`
     const exams = stmt.all(searchPattern, searchPattern) as ExamIMC[]
@@ -43,8 +53,8 @@ export class ExamImcRepository {
       examImc.peso,
       examImc.imc,
       examImc.classificacao,
-      examImc.id_usuario_avaliacao,
-      examImc.id_usuario_aluno
+      examImc.id_usuario_avaliacao.toString(),
+      examImc.id_usuario_aluno.toString()
     )
     return Promise.resolve()
   }

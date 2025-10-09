@@ -25,6 +25,10 @@ export class UserRepository {
 
     const rows = stmt.all(id) as any[]
 
+    if (!rows || rows.length === 0) {
+      return Promise.resolve(null)
+    }
+
     const user: UserWithExamImcResponse = {
       id: rows[0].id,
       nome: rows[0].nome,

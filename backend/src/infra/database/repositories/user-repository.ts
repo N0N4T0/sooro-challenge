@@ -11,6 +11,38 @@ export class UserRepository {
     return Promise.resolve(user)
   }
 
+  getByName(name: string): Promise<User | null> {
+    const stmt = this.db.prepare(`
+      SELECT
+        id,
+        nome,
+        usuario,
+        senha,
+        perfil,
+        situacao,
+        dt_inclusao
+      FROM usuario WHERE nome = ?`
+    )
+    const user = stmt.get(name) as User
+    return Promise.resolve(user)
+  }
+
+  getByUsuario(usuario: string): Promise<User | null> {
+    const stmt = this.db.prepare(`
+      SELECT
+        id,
+        nome,
+        usuario,
+        senha,
+        perfil,
+        situacao,
+        dt_inclusao
+      FROM usuario WHERE usuario = ?`
+    )
+    const user = stmt.get(usuario) as User
+    return Promise.resolve(user)
+  }
+
   getByIdWithExams(id: string): Promise<UserWithExamImcResponse | null> {
     const stmt = this.db.prepare(`
       SELECT 

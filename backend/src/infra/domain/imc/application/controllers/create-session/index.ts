@@ -22,7 +22,7 @@ type AuthenticateBodySchema = z.infer<typeof authenticateBodySchema>
 type CreateSessionControllerRequest = Request<{}, {}, AuthenticateBodySchema>
 
 type CreateSessionControllerResponse = Response<ErrorResponse | SuccessResponse<{
-  accessToken: string
+  token: string
   refreshToken: string
   user: {
     id: string
@@ -76,7 +76,7 @@ export class CreateSessionController {
         })
       }
 
-      const accessToken = await this.encrypter.encrypt({
+      const token = await this.encrypter.encrypt({
         sub: userExists.id.toString(),
       })
 
@@ -95,7 +95,7 @@ export class CreateSessionController {
 
       await this.authRepository.createSession(userToken)
       return res.status(200).json(createSuccessResponse('Login realizado com sucesso', {
-        accessToken,
+        token,
         refreshToken,
         user: {
           id: userExists.id.toString(),
